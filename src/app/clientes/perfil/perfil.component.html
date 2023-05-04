@@ -1,0 +1,81 @@
+<div class="abrir-modal animacion fadeIn" *ngIf="modalService.modal">
+<div  class="modal" tabindex="-1" style="display:block;">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">{{title}}</h4>
+          <button (click)="cerrarModal()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm">
+                        
+                        <ul *ngIf="cliente" class="list-group text-dark mb-3">
+                            <li class="list-group-item active">{{cliente.nombre}}</li>
+                            <li class="list-group-item">{{cliente.apellido}}</li>
+                            <li class="list-group-item">{{cliente.email}}</li>
+                            <li class="list-group-item">{{cliente.fecha}}</li>
+                            <li class="list-group-item">{{cliente.ciudad.nombre}}</li>
+                        </ul>
+    
+                        <div class="input-group mb-3" *ngIf="authService.hasRole('ROLE_ADMIN')">
+                            <input (change)="seleccionarFoto($event)" type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
+                            <button (click)="subirFoto()" [disabled]="!fotoSeleccionada" class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon04">Subir</button>
+                        </div>
+    
+                        <div *ngIf="progreso > 0" class="progress" role="progressbar" aria-label="Example with label" attr.aria-valuenow="{{progreso}}" style="height: 40px;">
+                            <div class="progress-bar" [ngStyle]="{width: progreso + '%'}">{{progreso}}%</div>
+                        </div>
+                    </div>
+                    <div class="col-sm">
+                        <img *ngIf="cliente?.foto" src="http://localhost:8080/api/uploads/img/{{cliente.foto}}" alt="{{cliente.foto}}" class="img-thumbnail rounded">
+                    </div>
+                </div>
+                <div class="row" *ngIf="authService.hasRole('ROLE_ADMIN')">
+                  <td><button class="btn btn-success btn-sm" name="editar" type="button" [routerLink]="['/facturas/form',cliente.id]" >Crear Factura</button></td>
+                </div>
+                <!-- facturas asociadas al cliente -->
+                <div class="row">
+                  <!-- alerta si no hay facturas asociadas al cliente -->
+                  <div class="alert alert-info my-4" *ngIf="cliente.facturas.length==0">
+                    No hay facturas asignadas al cliente {{cliente.nombre}} {{cliente.apellido}}
+                  </div>
+                  <table class="table table-bordered table-striped my-4" *ngIf="cliente.facturas.length > 0">
+                    <thead>
+                      <tr><h4>Facturas Asociadas al Cliente</h4></tr>
+                      <tr>
+                        <th>Folio</th>
+                        <th>Descripción</th>
+                        <th>Fecha</th>
+                        <th>Total</th>
+                        <th>Detalle</th>
+                        <th *ngIf="authService.hasRole('ROLE_ADMIN')">Eliminar</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let factura of cliente.facturas">
+                        <td>{{factura.id}}</td>
+                        <td>{{factura.descripcion}}</td>
+                        <td>{{factura.fecha}}</td>
+                        <td>{{factura.total}}</td>
+                        <td><button class="btn btn-primary btn-sm" type="button"
+                           [routerLink]="['/facturas',factura.id]">Ver</button></td>
+                           <td *ngIf="authService.hasRole('ROLE_ADMIN')"><button class="btn btn-danger btn-sm" type="button" (click)="delete(factura)">Eliminar</button></td>
+                      </tr>  
+                    </tbody>
+                  </table>
+                </div>
+                <!-- fin facturas asiciadas al cliente -->
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button (click)="cerrarModal()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    

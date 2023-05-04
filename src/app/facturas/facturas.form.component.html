@@ -1,0 +1,86 @@
+<div class="card bg-light" >
+    <div class="card-header">{{title}}: {{factura.descripcion}}</div>
+    <div class="card-body">
+        <h4 class="card-title">
+            <a [routerLink]="['/clientes']" class="btn btn-light btn-xs">&laquo; Volver</a>
+        </h4>
+   <!-- formulario -->
+    <form action="" #facturaForm="ngForm">
+        <div class="form-group row" *ngIf="factura.cliente">
+            <label for="cliente" class="col-sm-2 col-form-label">Cliente</label>
+            <div class="col-sm-6">
+                <input class="form-control" value="{{factura.cliente.nombre}} {{factura.cliente.apellido}}" 
+                type="text" name="clinte" disabled>
+            </div>  
+        </div>
+        <div class="form-group row">
+            <label for="descripcion" class="col-sm-2 col-form-label">Descripción</label>
+            <div class="col-sm-6">
+                <input class="form-control" type="text" name="descripcion" [(ngModel)]="factura.descripcion" required #descripcion="ngModel">
+            <div class="alert alert-danger" *ngIf="descripcion.invalid && descripcion.touched">
+                La descripcion es requerida.
+            </div>
+            </div>  
+        </div>
+        <div class="form-group row">
+            <label for="observacion" class="col-sm-2 col-form-label">Observaciones</label>
+            <div class="col-sm-6">
+                <textarea name="observacion" class="form-control" [(ngModel)]="factura.observacion"></textarea>
+            </div>  
+        </div>
+        
+        <div class="form-group row">
+            <div class="col-sm-6">
+        <mat-form-field >
+            <mat-label>Producto</mat-label>
+            <input type="text"
+                   placeholder="Agregar Producto"
+                   aria-label="Productos"
+                   matInput
+                   [formControl]="myControl"
+                   [matAutocomplete]="auto">
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="mostrarNombre" (optionSelected)="seleccionarProducto($event)">
+              <mat-option *ngFor="let producto of productosFiltrados | async" [value]="producto">
+                {{producto.nombre}}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+            </div>
+        </div>
+         <!-- alerta si no hay facturas asociadas al cliente -->
+         <div class="alert alert-info my-4" *ngIf="factura.items.length==0">
+            No hay líneas asignadas para la factura. Debe agregar almenos una!
+          </div>
+
+        <!-- Tabla items productos -->
+        <table class="table table-striped table-hover table-sm" *ngIf="factura.items.length > 0">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of factura.items">
+                    <td>{{item.producto.nombre}}</td>
+                    <td>{{item.producto.precio}}</td>
+                    <td><input type="number" value="{{item.cantidad}}" class="form-control col-sm-4" (change)="actualizarCantidad(item.producto.id, $event)"></td>
+                    <td>{{item.calcularImporte()}}</td>
+                    <td><button class="btn btn-danger btn-sm" type="button" 
+                        (click)="eliminarItemFactura(item.producto.id)" >X</button></td>
+                </tr>
+            </tbody>
+       </table>
+       <!-- Total a pagar -->
+       <h3 class="float-end" *ngIf="factura.items.length > 0" >Total a Pagar: <span class="badge bg-secondary">{{factura.totalAPagar()}}</span></h3>
+        <div class="form-group row">
+            <div class="col-sm-6">
+                <input type="submit" (click)="createFactura()" value="Guardar" class="btn btn-secondary" [disabled]="facturaForm.form.invalid || factura.items.length == 0">
+            </div>  
+        </div>
+    </form>
+    </div>
+</div>
